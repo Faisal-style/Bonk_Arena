@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <title>Void Aura — pusaran ungu</title>
+  <circle cx="32" cy="32" r="24" fill="#422163" fill-opacity=".4"/>
+  <g stroke="#c89aff" stroke-width="3" stroke-linecap="round">
+    <path id="arc" d="M12 19A24 24 0 0 1 48 14"/>
+    <use href="#arc" transform="rotate(120 32 32)"/><use href="#arc" transform="rotate(240 32 32)"/>
+  </g>
+  <g fill="#eddaff"><path id="shard" d="m49 8 9 8-11 3-3-6Z"/><use href="#shard" transform="rotate(120 32 32)"/><use href="#shard" transform="rotate(240 32 32)"/></g>
+  <path d="M40 19a15 15 0 1 0 5 24A14 14 0 0 1 40 19Z" fill="#aa7ade"/>
+  <path d="m34 25 3 6 6 3-6 3-3 6-3-6-6-3 6-3Z" fill="#f0ddff"/>
+</svg>

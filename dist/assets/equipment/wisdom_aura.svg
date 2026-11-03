@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <title>Wisdom Aura — lingkar rune</title>
+  <circle cx="32" cy="32" r="25" fill="#193b71" fill-opacity=".45" stroke="#81e1fa" stroke-width="2"/>
+  <circle cx="32" cy="32" r="18" stroke="#81e1fa" stroke-opacity=".55"/>
+  <g stroke="#b3f2ff" stroke-width="1.5" stroke-linejoin="round">
+    <path id="rune" d="M29 13V7l6 4-6 1m6-5v6"/>
+    <use href="#rune" transform="rotate(45 32 32)"/><use href="#rune" transform="rotate(90 32 32)"/><use href="#rune" transform="rotate(135 32 32)"/><use href="#rune" transform="rotate(180 32 32)"/><use href="#rune" transform="rotate(225 32 32)"/><use href="#rune" transform="rotate(270 32 32)"/><use href="#rune" transform="rotate(315 32 32)"/>
+  </g>
+  <path d="m32 18 10 14-10 14-10-14Z" fill="#48b5e4" stroke="#c5f6ff" stroke-width="2"/>
+  <path d="m32 19 9 13-9 12Z" fill="#b1f3ff"/><path d="M17 32h30" stroke="#e9fcff"/>
+</svg>

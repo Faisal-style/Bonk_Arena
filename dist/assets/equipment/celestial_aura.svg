@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <title>Celestial Aura — halo bintang</title>
+  <circle cx="32" cy="35" r="22" fill="#b99c42" fill-opacity=".16" stroke="#fff0b3"/>
+  <circle cx="32" cy="35" r="25" stroke="#fff0b3" stroke-opacity=".35"/>
+  <ellipse cx="32" cy="7" rx="13" ry="4" stroke="#ffe49d" stroke-width="2"/>
+  <path d="m32 17 4 13 13 5-13 4-4 14-4-14-13-4 13-5Z" fill="#fff6ce" stroke="#f4c96b"/>
+  <g fill="#fffced"><path id="star" d="m8 27 2 6 6 2-6 2-2 6-2-6-6-2 6-2Z"/><use href="#star" transform="translate(48)"/></g>
+  <circle cx="16" cy="18" r="2" fill="#fffced"/><circle cx="48" cy="51" r="2" fill="#fffced"/>
+</svg>

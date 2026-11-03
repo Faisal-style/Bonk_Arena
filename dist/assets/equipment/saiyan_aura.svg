@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <title>Saiyan Aura — energi emas</title>
+  <path d="M16 55 6 40l6-9-6-13 13 7L17 8l10 13L35 3l4 20L52 9l-3 23 10-7-5 20-9 10Z" fill="#b86d22" fill-opacity=".35" stroke="#ffda63" stroke-width="2" stroke-linejoin="round"/>
+  <path d="m21 54-8-15 10-6-1-13 9 8 4-14 7 20 8-3-5 23Z" fill="#ffd45a"/>
+  <path d="m27 53-5-12 8-6 5-13 3 18 5 3-5 10Z" fill="#fff4b0"/>
+  <ellipse cx="32" cy="55" rx="20" ry="4" fill="#ffcc4d" fill-opacity=".2" stroke="#ffe892"/>
+  <path d="m11 27-4 9h7l-4 10m43-28-5 11h7l-5 12" stroke="#fff9d7" stroke-width="2" stroke-linejoin="round"/>
+</svg>

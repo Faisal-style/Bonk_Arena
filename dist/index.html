@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#203d32">
+  <meta name="description" content="Masuk ke BONK Arena. Kumpulkan energi, ayunkan senjata, dan berevolusi menjadi legenda dalam game arena multiplayer bersama teman.">
+  <title>BONK Arena — Kecil dulu. Legenda kemudian.</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <canvas id="arena" aria-label="Arena permainan BONK"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="BONK Arena beranda"><img src="./favicon.svg" alt="" width="38" height="38"><span>BONK<span class="brand-small">ARENA</span></span><span class="version">BETA</span></a>
+    <div class="top-actions"><span class="local-badge" id="mode-badge"><i></i> MULTIPLAYER <span>•</span> MAIN BARENG</span><button class="icon-btn" id="sound" title="Aktifkan suara" aria-label="Aktifkan suara" aria-pressed="false"></button><button class="icon-btn" id="help" title="Cara bermain" aria-label="Cara bermain">?</button><button class="icon-btn hidden" id="inventory-button" title="Inventory (I)" aria-label="Buka inventory">I</button><button class="icon-btn hidden" id="pause" title="Jeda (Esc)" aria-label="Jeda permainan">Ⅱ</button></div>
+  </header>
+
+  <main id="lobby" class="lobby">
+    <div class="lobby-layout">
+      <section class="intro">
+        <div class="eyebrow"><span></span> A LITTLE CHAOS. A LOT OF BONK.</div>
+        <h1>Kecil dulu.<br>Legenda<br><em>kemudian.</em><span class="spark">✳</span></h1>
+        <p>Satu arena. Semua rival.<br>Kumpulkan energi, ayunkan senjatamu,<br>dan jadilah yang terakhir ditakuti.</p>
+        <div class="feature-tags"><span><b>⚔</b> Pertarungan cepat</span><span><b>↗</b> 12 evolusi</span><span><b>∞</b> Gratis dimainkan</span></div>
+      </section>
+      <section class="play-card" aria-label="Mulai bermain">
+        <div class="card-top"><span class="tiny-label">PETUALANG BARU</span><span class="pill">LV. 01</span></div>
+        <div class="avatar-stage"><div class="avatar-ring"></div><canvas id="avatar" width="280" height="180" aria-label="Pratinjau karakter"></canvas><span class="avatar-caption">PERINTIS <span>•</span> TONGKAT KAYU</span></div>
+        <div class="avatar-customize-row"><button id="customize-avatar" type="button">✎ CUSTOM AVATAR</button><small id="avatar-summary">Avatar bawaan · pilih gambar atau preset</small></div>
+        <form id="play-form">
+          <div class="mode-picker" role="group" aria-label="Mode permainan"><button type="button" id="mode-online" class="selected" aria-pressed="true">MULTIPLAYER</button><button type="button" id="mode-solo" aria-pressed="false">LATIHAN BOT</button></div>
+          <div id="room-fields"><label for="room-code">Kode room <button id="new-room" type="button">BUAT KODE BARU ↗</button></label><div class="input-wrap room-input"><span>⌘</span><input id="room-code" value="RIMBA" minlength="3" maxlength="12" pattern="[A-Za-z0-9]{3,12}" required autocomplete="off" autocapitalize="characters" aria-describedby="room-hint"></div><small id="room-hint">Gunakan kode yang sama untuk main bersama.</small></div>
+          <label for="nickname">Nama panggilan <span>MAKS. 16 KARAKTER</span></label>
+          <div class="input-wrap"><span>☺</span><input id="nickname" maxlength="16" placeholder="Petualang" autocomplete="off" spellcheck="false" aria-label="Nama panggilan"></div>
+          <div class="color-row"><span>Pilih warnamu</span><div id="colors" role="group" aria-label="Warna karakter"></div></div>
+          <button class="play-button" id="join-button" type="submit">MASUK ARENA <span>↗</span></button><p id="connection-error" class="connection-error hidden" role="alert"></p>
+        </form>
+        <div class="play-note"><span class="status-dot"></span><span id="mode-note">Hingga 16 pemain + 6 bot per room</span></div>
+        <div class="best-record"><span>♜ &nbsp; REKOR PRIBADI</span><b id="best-score">0 XP</b></div>
+      </section>
+    </div>
+    <footer class="lobby-footer"><span>BUKAN SALING MAKAN.<br><b>SALING BONK.</b></span><div class="mini-controls"><span><kbd>↖</kbd> Gerak mengikuti kursor</span><span><kbd>KLIK</kbd> Pukul</span><span><kbd>SPACE</kbd> Dash</span></div><span class="made-for">SEKECIL APA PUN KAMU,<br><b>SELALU ADA PELUANG.</b></span></footer>
+  </main>
+
+  <section id="hud" class="hidden" aria-label="Status permainan">
+    <div class="player-panel glass"><div class="player-heading"><div class="level-badge" id="level-number">1</div><div><strong id="player-name">Petualang</strong><span id="class-name">Perintis</span></div><b id="kills">0 <span>KO</span></b></div><div class="health-track"><div id="health-fill"></div></div><div class="xp-label"><span id="xp-text">0 / 100 XP</span><span id="next-class">Petarung ↗</span></div><div class="xp-track"><div id="xp-fill"></div></div><div id="xp-decay" class="xp-decay"></div><div id="powerup-status" class="hidden" aria-label="Efek sementara aktif">
+      <div id="weapon-power" class="power-status hidden"><span class="power-icon"></span><div class="power-content"><div class="power-heading"><b class="power-name"></b><span class="power-time"></span></div><div class="power-track"><div class="power-fill"></div></div></div></div>
+      <div id="skill-power" class="power-status hidden"><span class="power-icon"></span><div class="power-content"><div class="power-heading"><b class="power-name"></b><span class="power-time"></span></div><div class="power-track"><div class="power-fill"></div></div></div></div>
+    </div></div>
+    <aside class="leaderboard glass"><div class="board-heading"><span>♛</span> PAPAN JUARA <small id="board-mode">ONLINE</small></div><ol id="ranking"></ol><div class="rank-self" id="self-rank"></div></aside>
+    <aside id="boss-panel" class="boss-panel glass" aria-label="Status boss arena"><b id="boss-title">♛ BOSS BERIKUTNYA</b><span id="boss-detail"></span><div id="boss-track" class="boss-track hidden"><div id="boss-fill"></div></div><small id="boss-hint">Ikuti tanda ♛ di minimap.</small></aside>
+    <div class="session-info"><span class="status-dot"></span><span id="session-clock">00:00</span><span>•</span><span id="population">23 petarung</span></div>
+    <div class="room-hud glass hidden" id="room-hud"><b id="room-display">RIMBA</b><span id="network-status" role="status">Menghubungkan…</span><button id="invite" type="button">UNDANG TEMAN ↗</button></div>
+    <div id="game-tip" class="game-tip">Kumpulkan kristal untuk berevolusi. Klik untuk memukul!</div>
+    <div class="ability-bar glass"><div class="ability"><span class="ability-icon">⚔</span><div><b>PUKUL</b><small>KLIK / J</small></div><div class="cooldown-cover" id="attack-cooldown"></div></div><span class="ability-divider"></span><div class="ability" id="dash-ability"><span class="ability-icon">ϟ</span><div><b>DASH</b><small id="dash-label">SPACE</small></div><div class="cooldown-cover" id="dash-cooldown"></div></div></div>
+    <div class="minimap-wrap glass"><canvas id="minimap" width="136" height="136" aria-label="Peta arena"></canvas><span>HUTAN RIMBA</span></div>
+    <div id="powerup-toast" class="powerup-toast hidden" role="status"></div>
+    <div id="kill-feed" class="kill-feed" aria-live="polite"></div>
+    <div id="evolution-toast" class="evolution-toast hidden" role="status"><small>EVOLUSI TERBUKA</small><b id="evolution-name"></b><span id="evolution-description">Bentuk baru. Tantangan baru.</span></div>
+    <div class="touch-controls"><div id="joystick" aria-label="Joystick gerakan"><div id="joystick-knob"></div></div><div class="touch-actions"><button id="touch-dash" aria-label="Dash">ϟ</button><button id="touch-attack" aria-label="Pukul">⚔</button></div></div>
+  </section>
+
+  <dialog id="avatar-dialog" class="modal avatar-editor" aria-labelledby="avatar-editor-title">
+    <button id="avatar-close" class="close-modal" type="button" aria-label="Tutup editor avatar">×</button>
+    <span class="eyebrow">GAYAMU DI ARENA</span><h2 id="avatar-editor-title">Bikin avatarmu.</h2>
+    <p>Upload gambar atau pilih preset. Atur bagian yang terlihat di wajah karakter; equipment dan aura tetap bisa dipakai.</p>
+    <div class="avatar-editor-layout">
+      <div class="avatar-crop-stage"><canvas id="avatar-crop" width="256" height="256" aria-label="Pratinjau crop avatar; geser gambar atau gunakan slider posisi"></canvas><small>Geser gambar untuk mengatur posisi</small></div>
+      <div class="avatar-editor-controls">
+        <label class="avatar-upload" for="avatar-file">PILIH GAMBAR<input id="avatar-file" type="file" accept="image/png,image/jpeg,image/webp"></label>
+        <small class="avatar-file-note">PNG, JPG, WebP · maksimal 5 MB</small>
+        <div class="avatar-presets" role="group" aria-label="Preset avatar"><button type="button" data-avatar-preset="cat">Kucing</button><button type="button" data-avatar-preset="robot">Robot</button><button type="button" data-avatar-preset="ninja">Ninja</button><button type="button" data-avatar-preset="default">Bawaan</button></div>
+        <label for="avatar-zoom">Perbesar <span id="avatar-zoom-value">1.0×</span></label><input id="avatar-zoom" type="range" min="1" max="3" step="0.05" value="1">
+        <label for="avatar-pan-x">Posisi horizontal</label><input id="avatar-pan-x" type="range" min="-100" max="100" step="1" value="0">
+        <label for="avatar-pan-y">Posisi vertikal</label><input id="avatar-pan-y" type="range" min="-100" max="100" step="1" value="0">
+        <div class="avatar-transform"><button type="button" id="avatar-rotate">↻ Putar 90°</button><button type="button" id="avatar-flip">↔ Cerminkan</button></div>
+      </div>
+    </div>
+    <p id="avatar-feedback" role="status"></p><p class="avatar-sharing-note">Avatar tersimpan di browser ini. Saat masuk multiplayer, gambar hasil crop dibagikan kepada pemain dalam room.</p>
+    <div class="avatar-editor-actions"><button type="button" class="text-button" id="avatar-cancel">Batal</button><button type="button" class="play-button" id="avatar-apply">PAKAI AVATAR <span>↗</span></button></div>
+  </dialog>
+  <dialog id="help-dialog" class="modal"><button class="close-modal" aria-label="Tutup">×</button><span class="eyebrow">KENALI ARENANYA</span><h2>Kecil bukan berarti lemah.</h2><p>Kalahkan rival dengan senjata, kumpulkan kristal XP, dan buka 12 bentuk evolusi. Pilih Multiplayer untuk melawan teman satu room dan 6 bot, atau Latihan Bot untuk bermain sendiri. Room online tetap berjalan saat menu dibuka.</p><div class="help-controls"><div><kbd>Mouse</kbd><span>Gerak & bidik mengikuti kursor</span></div><div><kbd>Klik / J</kbd><span>Ayunkan senjata ke arah bidikan</span></div><div><kbd>Space</kbd><span>Dash • kebal sesaat • jeda 3 detik</span></div><div><kbd>Esc / P</kbd><span>Jeda permainan</span></div></div><p>Dekatkan kursor ke karakter untuk berhenti; arahkan lebih jauh untuk bergerak lebih cepat. Setelah menutup menu, gerakkan mouse untuk melanjutkan.</p><p class="mobile-help">Di ponsel: joystick untuk bergerak dan membidik, tombol ⚔ untuk memukul, ϟ untuk dash.</p><div class="evolution-list" id="evolution-list"></div><p><b>Equipment:</b> lewati peti berwarna tier untuk loot, tekan <kbd>I</kbd> untuk memakai, menyimpan, atau membuang equipment. Warna item menunjukkan tier kelangkaan. XP turun 5% setiap 30 detik dan evolusi bisa turun. Lihat hitung mundur di panel pemain.</p><h3 class="powerup-help-title">JELAJAHI RIMBA & TANTANG BOSS</h3><p>Pohon pinus, tunggul, batang tumbang, reruntuhan, kristal, jamur raksasa, dan semak duri menghalangi gerakan. Bunga kecil dan rumput hanya dekorasi. Empat altar batu menjadi bagian pemandangan. Boss dapat muncul di lokasi acak yang lapang di seluruh map; posisi berikutnya ditandai di minimap.</p><p>Boss pertama bangkit setelah <b>75 detik</b>, dengan peringatan 10 detik. Ikuti tanda <b>♛</b> di minimap. Hindari area berwarna sebelum serangan selesai disiapkan: lingkaran, kerucut api, atau cincin void. Arah semburan api terkunci saat peringatan dimulai; bagian tengah cincin void aman jika seluruh tubuhmu berada di dalamnya. Boss tidak memulihkan HP; kamu bisa menyerangnya bersama pemain lain. HP awalnya meningkat sesuai jumlah pemain dalam room saat muncul.</p><p>Mengalahkan boss menjatuhkan <b>3 equipment acak, minimal Rare, dengan satu dijamin Epic atau Legendary</b>. Loot bisa berupa senjata, armor, sepatu, atau aura; siapa pun bisa mengambilnya. Loot bertahan 90 detik, jadi kosongkan tas bila penuh. Penyerang terakhir mendapat 300 XP. Boss berikutnya muncul 150 detik setelah boss dikalahkan, dengan jenis berbeda dan lokasi baru berjarak minimal 450 unit dari titik spawn sebelumnya. Koordinat dipilih jauh dari obstacle dan area spawn tengah.</p><div id="boss-help" class="aura-help boss-help"></div><h3 class="powerup-help-title">TEMUKAN AURA-MU</h3><p>Loot peti dengan ikon aura melayang, lalu tekan <kbd>I</kbd> dan pilih <b>Pakai Equipment</b>. Satu aura bisa aktif bersama senjata, armor, dan sepatu. Aura memberi bonus stats dan efek visual yang terlihat oleh pemain lain. Simpan ke tas untuk melepasnya, atau buang ke arena untuk berbagi. Aura bertahan selama hidup karakter dan jatuh saat kamu tumbang.</p><div id="aura-help" class="aura-help"></div><h3 class="powerup-help-title">REBUT POWER-UP DI ARENA</h3><p>Lewati rune bercahaya untuk mengambilnya. Bisa membawa 1 senjata + 1 skill. Item baru pada slot yang sama mengganti efek lama; item sejenis memperbarui durasi. Efek hilang saat waktu habis atau kamu tumbang. Bot juga bisa mengambilnya. Ikon belah ketupat di minimap menunjukkan lokasi pickup.</p><div id="powerup-help" class="powerup-help"></div><p class="tip-box">✦ Petarung kecil lebih lincah. Hindari ayunan musuh, lalu serang saat senjatanya mengisi ulang!</p><button class="play-button close-help">SIAP, MENGERTI <span>↗</span></button></dialog>
+  <dialog id="pause-dialog" class="modal small-modal"><span class="eyebrow">TARIK NAPAS DULU</span><h2 id="pause-title">Arena dijeda.</h2><p id="pause-description">Petarung lain juga menunggu. Lanjutkan saat kamu siap.</p><button class="play-button" id="resume">LANJUT BERTARUNG <span>↗</span></button><button class="text-button" id="quit">Kembali ke lobi</button></dialog>
+  <dialog id="death-dialog" class="modal small-modal"><span class="eyebrow">SATU BONK TERLALU JAUH</span><h2>Belum jadi legenda.</h2><p id="death-message">Coba lagi, petualang.</p><div class="result-grid"><div><b id="result-xp">0</b><span>XP TERKUMPUL</span></div><div><b id="result-kills">0</b><span>RIVAL TUMBANG</span></div><div><b id="result-time">0:00</b><span>BERTAHAN</span></div></div><div class="record-notice hidden" id="new-record">✦ REKOR PRIBADI BARU!</div><button class="play-button" id="restart">COBA LAGI <span>↗</span></button><button class="text-button" id="back-lobby">Kembali ke lobi</button></dialog>
+  <dialog id="invite-dialog" class="modal small-modal"><button class="close-modal" id="close-invite" aria-label="Tutup">×</button><span class="eyebrow">AJAK TEMAN BONK BARENG</span><h2>Masuk room yang sama.</h2><p id="invite-message"></p><input id="invite-link" readonly aria-label="Tautan undangan"><button class="play-button" id="copy-invite">SALIN TAUTAN <span>↗</span></button><p id="invite-feedback" role="status"></p><p>Jika alamat memakai localhost, teman satu Wi-Fi harus menggantinya dengan IP komputer server. Arena tetap berjalan saat menu ini dibuka.</p></dialog>
+  <dialog id="inventory-dialog" class="modal inventory-modal" aria-labelledby="inventory-title">
+    <header class="inventory-header"><div><span class="eyebrow">BONK ARENA / EQUIPMENT</span><h2 id="inventory-title">Inventory<span>.</span></h2></div><button id="close-inventory" class="close-modal" aria-label="Tutup inventory">×</button></header>
+    <p id="inventory-note"></p>
+    <div class="tier-legend" aria-label="Tier equipment"><span style="--tier-color:#b9c1cb">Common</span><span style="--tier-color:#8dd58a">Uncommon</span><span style="--tier-color:#76b9ef">Rare</span><span style="--tier-color:#c598ed">Epic</span><span style="--tier-color:#f4c96b">Legendary</span></div><div class="inventory-layout">
+      <section class="inventory-bag" aria-label="Tas equipment"><div class="inventory-section-label"><span>TAS PETUALANG</span><span id="inventory-count">0 JENIS</span></div><div id="inventory-items" class="inventory-grid" role="group" aria-label="Pilih equipment dari tas"></div><p class="inventory-hint" id="inventory-hint">Lewati peti berwarna tier di arena untuk mengisi tas.</p></section>
+      <aside class="inventory-sidebar"><div class="inventory-section-label">SEDANG DIPAKAI</div><div id="equipment-slots" class="equipment-slots"></div>
+        <section id="equipment-detail" class="equipment-detail" aria-label="Detail item"><div id="equipment-preview" class="equipment-preview"></div><small id="equipment-kind">EQUIPMENT</small><h3 id="equipment-name">Pilih sebuah item</h3><p id="equipment-description">Klik ikon untuk memakai, menyimpan, atau membuang equipment.</p><p id="equipment-comparison"></p><button id="equipment-action" type="button" disabled>PILIH ITEM</button><button id="equipment-drop" type="button" disabled>BUANG KE ARENA</button><small class="storage-note">Disimpan selama hidup ini; bukan penyimpanan antarpertandingan.</small></section>
+      </aside>
+    </div>
+    <section class="inventory-stat-panel"><span class="inventory-section-label">STATS AVATAR SAAT INI</span><p id="inventory-stats"></p></section><p id="inventory-feedback" role="status"></p>
+    <footer class="inventory-footer"><span><kbd>I</kbd> / <kbd>ESC</kbd> TUTUP</span><span>16 SLOT TAS · 1 ITEM PER SLOT EQUIPMENT</span></footer>
+  </dialog>
+  <script type="module" src="./game.js"></script>
+</body>
+</html>

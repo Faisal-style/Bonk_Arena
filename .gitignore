@@ -1,0 +1,12 @@
+node_modules/
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+
+# Local tooling and hosting metadata
+.agents/
+.codex/
+.aws/
+.openai/
