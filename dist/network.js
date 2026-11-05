@@ -62,7 +62,7 @@ export class MultiplayerClient {
     const began = performance.now();
     try {
       await this.request('/api/input', { data: { seq: ++this.sequence, dashSeq: this.dashSequence,
-        x: input.x || 0, y: input.y || 0, angle: input.angle || 0, attack: input.attack === true } });
+        x: input.x || 0, y: input.y || 0, angle: input.angle || 0, attack: input.attack === true, block: input.block === true } });
       this.latency = Math.round(performance.now() - began);
     } catch (error) {
       if (error.status === 401) this.fail(error);

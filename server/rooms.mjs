@@ -22,7 +22,7 @@ export function normalizeRoom(value = 'RIMBA') {
 // Explicit fields prevent leaking session tokens, AI references, or cyclic state.
 export function publicActor(a) {
   const fields = ['id', 'name', 'color', 'xp', 'level', 'x', 'y', 'angle', 'hp', 'kills',
-    'alive', 'cooldown', 'dashCooldown', 'dashTime', 'attackTime', 'attackAngle',
+    'alive', 'cooldown', 'dashCooldown', 'dashTime', 'blocking', 'blockFlash', 'attackTime', 'attackAngle',
     'invulnerable', 'hitFlash', 'windup', 'walking', 'isBoss', 'bossType', 'bossMaxHP', 'slamUntil',
     'castTime', 'castX', 'castY', 'castAngle', 'avatarId'];
   const out = { human: a.isPlayer, joinedAt: a.joinedAt ?? 0, diedAt: a.diedAt ?? null, killer: a.killer ?? null };
@@ -116,6 +116,7 @@ export class RoomService {
     if (++session.rateCount > 65) throw new GameError(429, 'Input terlalu cepat.');
     if (!payload || !Number.isSafeInteger(payload.seq) || payload.seq < 0 ||
       !Number.isSafeInteger(payload.dashSeq) || payload.dashSeq < 0 ||
+      (payload.block!==undefined&&typeof payload.block!=='boolean') ||
       ![payload.x, payload.y, payload.angle].every(Number.isFinite) || typeof payload.attack !== 'boolean') {
       throw new GameError(400, 'Input tidak valid.');
     }
@@ -126,7 +127,7 @@ export class RoomService {
     session.dashSequence = Math.max(session.dashSequence, payload.dashSeq);
     session.input = { x: clamp(payload.x, -1, 1), y: clamp(payload.y, -1, 1),
       angle: Math.atan2(Math.sin(payload.angle), Math.cos(payload.angle)), attack: payload.attack,
-      dash: dash || session.input.dash === true };
+      dash: dash || session.input.dash === true, block:payload.block===true };
     session.lastInput = now;
     session.lastSeen = now;
   }

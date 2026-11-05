@@ -190,16 +190,21 @@ Hitung mundur pengurangan XP tampil di HUD. Inventory menjeda latihan, tetapi di
 | Bidik | Ke arah kursor mouse | Arah joystick |
 | Pukul | Klik kiri / J, tahan untuk berulang | Tombol pedang |
 | Dash | Space | Tombol petir |
+| Block | Tahan klik kanan | Tahan tombol 🛡 di atas tombol pukul |
 | Inventory | I | Tombol I |
 | Menu / jeda latihan | Esc / P | Tombol jeda |
 
-Di desktop, arahkan kursor untuk bergerak sekaligus membidik. Karakter berhenti saat kursor berada di dekat tubuhnya dan berakselerasi sesuai jarak kursor sampai batas kecepatan stats. Klik/J tetap untuk menyerang; Space melakukan dash menuju arah kursor. WASD dan tombol panah tidak lagi menggerakkan karakter. Input kursor direset saat membuka menu, kehilangan fokus, atau keluar dari arena; gerakkan mouse lagi setelah melanjutkan. Mode sentuh tetap memakai joystick. Kontrol ini berlaku di latihan dan multiplayer; server tetap membatasi kecepatan dan menentukan posisi sebenarnya.
+Di desktop, arahkan kursor untuk bergerak sekaligus membidik. Karakter berhenti saat kursor berada di dekat tubuhnya dan berakselerasi sesuai jarak kursor sampai batas kecepatan stats. Klik kiri/J untuk menyerang; Space melakukan dash menuju arah kursor; tahan klik kanan untuk block pukulan dari depan. WASD dan tombol panah tidak lagi menggerakkan karakter. Input kursor direset saat membuka menu, kehilangan fokus, atau keluar dari arena; gerakkan mouse lagi setelah melanjutkan. Mode sentuh tetap memakai joystick. Kontrol ini berlaku di latihan dan multiplayer; server tetap membatasi kecepatan dan menentukan posisi sebenarnya.
+
+**Block:** tahan klik kanan untuk menangkis pukulan dari petarung dalam sudut **120° di depan karakter**, mengikuti arah kursor. Damage, knockback, dan efek frost dari pukulan yang ditangkis dibatalkan. Tidak membutuhkan equipment atau cooldown. Pada ponsel, tahan tombol 🛡 sambil membidik dengan joystick. Perisai di depan karakter, percikan benturan, teks BLOCK, dan suara menandai tangkisan; status HUD menunjukkan kapan block aktif.
+
+Saat block, kecepatan gerak menjadi **45%**, ayunan dibatalkan, dan karakter tidak bisa menyerang. Serangan di luar sudut pertahanan serta seluruh skill area boss menembus block. Space tetap melakukan dash dengan cooldown semula: dash mengakhiri block, yang aktif kembali setelah dash bila tombol masih ditahan. Melepas tombol, membuka menu, kehilangan fokus, atau input multiplayer yang kedaluwarsa melepaskan block. Menu klik kanan browser hanya dicegah di canvas saat bermain. Konstanta `BLOCK` berada di `dist/engine.js`; server menentukan arah pertahanan dan hasil tangkisan.
 
 ## Arsitektur
 
 Server memakai `node:http`, tanpa dependency eksternal. Server menjalankan simulasi **30 tick/detik**, mengirim snapshot **15 kali/detik** melalui HTTP streaming/SSE, dan menerima kontrol melalui POST hingga **20 kali/detik** dari setiap klien. Browser memakai Fetch Streams, tanpa WebSocket. Interpolasi hanya menghaluskan tampilan; browser tidak menentukan hasil pertarungan.
 
-Setiap sesi mendapat token acak yang dikirim pada header `Authorization: Bearer …`. Token hanya disimpan di memori tab, tidak di URL, localStorage, atau snapshot. Server memvalidasi dan membatasi input; nilai posisi, damage, health, XP, dan ID kiriman klien tidak dipercaya. Nomor urut mencegah paket lama mengulang kontrol atau dash. Origin berbeda ditolak. Request JSON dibatasi 2 KiB, koneksi lambat diputus, dan room/sesi kosong dibersihkan.
+Setiap sesi mendapat token acak yang dikirim pada header `Authorization: Bearer …`. Token hanya disimpan di memori tab, tidak di URL, localStorage, atau snapshot. Server memvalidasi dan membatasi input; nilai posisi, damage, health, XP, dan ID kiriman klien tidak dipercaya. Nomor urut mencegah paket lama mengulang kontrol atau dash. Input `block` berupa boolean yang menyatakan tombol sedang ditahan; input yang tidak menyertakan field ini dianggap tidak block. Snapshot menyertakan `blocking` dan `blockFlash`, sehingga pertahanan dan efek benturan terlihat oleh pemain lain. Arah dan status block seluruh pemain diterapkan sebelum combat setiap tick. Origin berbeda ditolak. Request JSON biasa dibatasi 2 KiB, sedangkan join mendukung 128 KiB untuk avatar. Koneksi lambat diputus, dan room/sesi kosong dibersihkan.
 
 | Endpoint | Fungsi |
 | --- | --- |

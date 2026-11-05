@@ -1,4 +1,5 @@
 export const WORLD = 2800;
+export const BLOCK = {halfAngle:Math.PI/3,moveMultiplier:.45,flashDuration:.18};
 export const RUIN_SITES = [{x:700,y:700},{x:2100,y:700},{x:2100,y:2100},{x:700,y:2100}];
 export const BOSS_FIRST_SPAWN = 75;
 export const BOSS_RESPAWN = 150;
@@ -139,7 +140,7 @@ export class Arena {
   }
   actor(name, color, xp = 0, isPlayer = false) {
     const level = stageFor(xp); const p = isPlayer ? {x:WORLD/2,y:WORLD/2}:this.freePoint({x:WORLD/2,y:WORLD/2},330);
-    return { id:this.nextId++, name,color,xp,level,isPlayer,...p,angle:this.random()*Math.PI*2,hp:stats(level).hp,kills:0,alive:true,cooldown:0,dashCooldown:0,dashTime:0,dashAngle:0,attackTime:0,attackAngle:0,attackHits:new Set(),invulnerable:isPlayer?3:1,hitFlash:0,windup:0,target:null,think:0,walking:0,regen:0,respawn:0,weapon:null,skill:null,slowUntil:0,inventory:[],equipment:Object.fromEntries(GEAR_SLOTS.map(slot=>[slot,null])),nextDecayAt:this.time+XP_DECAY_INTERVAL,peakXP:xp,maxLevelReached:level };
+    return { id:this.nextId++, name,color,xp,level,isPlayer,...p,angle:this.random()*Math.PI*2,hp:stats(level).hp,kills:0,alive:true,cooldown:0,dashCooldown:0,dashTime:0,dashAngle:0,blocking:false,blockFlash:0,attackTime:0,attackAngle:0,attackHits:new Set(),invulnerable:isPlayer?3:1,hitFlash:0,windup:0,target:null,think:0,walking:0,regen:0,respawn:0,weapon:null,skill:null,slowUntil:0,inventory:[],equipment:Object.fromEntries(GEAR_SLOTS.map(slot=>[slot,null])),nextDecayAt:this.time+XP_DECAY_INTERVAL,peakXP:xp,maxLevelReached:level };
   }
   reset(name='Petualang',color=COLORS[0]) {
     this.time=0; this.events=[]; this.orbs=[]; this.actors=[];
@@ -325,12 +326,13 @@ export class Arena {
     if(level>a.level){a.level=level;if(level>(a.maxLevelReached||0)){a.hp=actorStats(a,this.time).hp;a.maxLevelReached=level;}this.events.push({type:'evolve',actor:a});}
   }
   attack(a) {
-    if(!a.alive || a.cooldown>0 || a.attackTime>0) return false;
+    if(!a.alive || a.cooldown>0 || a.attackTime>0 || a.blocking) return false;
     a.cooldown=actorStats(a,this.time).cooldown;a.attackTime=.3;a.attackAngle=a.angle;a.attackHits.clear();a.windup=0;
     this.events.push({type:'swing',actor:a});return true;
   }
   dash(a,angle=a.angle) {
     if(!a.alive || a.dashCooldown>0) return false;
+    a.blocking=false;
     a.dashCooldown=actorStats(a,this.time).dashCooldown;a.dashTime=.18;a.dashAngle=angle;a.invulnerable=Math.max(a.invulnerable,.23);
     this.events.push({type:'dash',actor:a});return true;
   }
@@ -370,6 +372,13 @@ export class Arena {
   }
   hit(attacker,target) {
     if(!target.alive||target.invulnerable>0)return;
+    const incomingAngle=Math.atan2(attacker.y-target.y,attacker.x-target.x);
+    if(target.blocking&&!attacker.isBoss&&Math.abs(angleDiff(incomingAngle,target.angle))<=BLOCK.halfAngle){
+      target.blockFlash=BLOCK.flashDuration;target.regen=0;
+      const radius=actorStats(target,this.time).radius+12;
+      this.events.push({type:'block',actor:target,attacker,x:target.x+Math.cos(incomingAngle)*radius,y:target.y+Math.sin(incomingAngle)*radius});
+      return;
+    }
     const attackStats=actorStats(attacker,this.time);
     const damage=Math.round(attackStats.damage*actorStats(target,this.time).damageTaken);target.hp-=damage;target.hitFlash=.15;target.regen=0;
     if(activePower(attacker,'weapon',this.time)===POWER_UPS.frost)target.slowUntil=this.time+1.5;
@@ -380,7 +389,7 @@ export class Arena {
       if(target.isBoss){this.defeatBoss(target,attacker);return;}
       for(const [index,type] of Object.values(target.equipment).entries())if(type){if(this.gearLoot.length>=10)this.gearLoot.shift();const angle=index*Math.PI*2/GEAR_SLOTS.length;this.spawnGear(type,{x:clamp(target.x+Math.cos(angle)*65,60,WORLD-60),y:clamp(target.y+Math.sin(angle)*65,60,WORLD-60)});}
       target.inventory=[];target.equipment=Object.fromEntries(GEAR_SLOTS.map(slot=>[slot,null]));
-      target.hp=0;target.alive=false;target.respawn=3;target.weapon=null;target.skill=null;target.slowUntil=0;attacker.kills++;this.gainXP(attacker,45+target.level*30);
+      target.hp=0;target.alive=false;target.blocking=false;target.respawn=3;target.weapon=null;target.skill=null;target.slowUntil=0;attacker.kills++;this.gainXP(attacker,45+target.level*30);
       for(let i=0;i<12;i++){const angle=this.random()*Math.PI*2,dist=20+this.random()*65;this.addOrb({x:clamp(target.x+Math.cos(angle)*dist,20,WORLD-20),y:clamp(target.y+Math.sin(angle)*dist,20,WORLD-20)},8+target.level*3);}
       this.events.push({type:'kill',actor:target,attacker});
     }
@@ -398,6 +407,15 @@ export class Arena {
     if(this.time>=this.nextPickupAt){this.spawnPickup();this.nextPickupAt=this.time+PICKUP_INTERVAL;}
     // Expire everyone before combat, independent of actor iteration order.
     for(const a of this.actors)for(const slot of ['weapon','skill'])if(a[slot]?.expiresAt<=this.time)a[slot]=null;
+    // Resolve every player's facing and guard before any actor can deal damage.
+    for(const a of this.actors){
+      a.blockFlash=Math.max(0,(a.blockFlash||0)-dt);
+      const controls=a.isPlayer?(input instanceof Map?(input.get(a.id)||{}):input):{};
+      if(a.isPlayer&&Number.isFinite(controls.angle))a.angle=controls.angle;
+      const startingDash=controls.dash&&a.dashCooldown<=dt;
+      a.blocking=!!(a.alive&&!a.isBoss&&controls.block===true&&a.dashTime<=0&&!startingDash);
+      if(a.blocking){a.attackTime=0;a.windup=0;a.attackHits.clear();}
+    }
     for(const a of this.actors){
       if(a.isBoss){if(a.alive){a.cooldown=Math.max(0,a.cooldown-dt);a.invulnerable=Math.max(0,a.invulnerable-dt);a.hitFlash=Math.max(0,a.hitFlash-dt);this.bossInput(a,dt);}continue;}
       if(!a.alive){if(!a.isPlayer){a.respawn-=dt;if(a.respawn<=0){const fresh=this.actor(a.name,a.color,Math.floor(this.random()*180));Object.assign(a,fresh);const p=this.freePoint(this.player,350);a.x=p.x;a.y=p.y;}}continue;}
@@ -410,7 +428,7 @@ export class Arena {
         let dx=controls.x||0,dy=controls.y||0;const len=Math.hypot(dx,dy);if(len>1){dx/=len;dy/=len;}
         if(controls.dash)this.dash(a,len>.1?Math.atan2(dy,dx):a.angle);
         if(controls.attack)this.attack(a);
-        if(a.dashTime<=0)this.move(a,dx,dy,dt);
+        if(a.dashTime<=0)this.move(a,dx,dy,dt,actorStats(a,this.time).speed*(a.blocking?BLOCK.moveMultiplier:1));
       }else if(a.dashTime<=0)this.botInput(a,dt);
       if(a.dashTime>0){this.move(a,Math.cos(a.dashAngle),Math.sin(a.dashAngle),dt,780);a.dashTime-=dt;}
       if(a.attackTime>0){
